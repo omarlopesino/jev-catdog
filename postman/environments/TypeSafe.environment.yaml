@@ -1,0 +1,7 @@
+name: TypeSafe
+values:
+  - key: jev_api_key
+    value: ''
+    enabled: true
+    type: secret
+    description: TypeSafe API key, the same as JEV_API_KEY in .env. Never stored in the repository.
