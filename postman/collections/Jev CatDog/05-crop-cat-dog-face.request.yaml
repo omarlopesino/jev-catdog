@@ -1,0 +1,41 @@
+$kind: http-request
+name: 5. box with an image (crop-cat-dog-face)
+description: "Locates the animal's face; the has_face noul tells whether there really is one, because box always returns a box."
+order: 5000
+url: '{{base_url}}/systemone'
+method: POST
+examples: ./.resources/05-crop-cat-dog-face.resources/examples/
+headers:
+  - key: TypeSafe-Danger-Zone-Images
+    value: 'true'
+    description: Required to send images; without it TypeSafe responds 400.
+body:
+  type: formdata
+  content:
+    - key: request
+      type: text
+      contentType: application/json
+      value: |-
+        {
+          "model": "{{model}}",
+          "state": {"photo": "photo"},
+          "assets": {"photo": {"type": "image", "part": "photo"}},
+          "questions": {
+            "has_face": {"type": "noul", "instructions": "Is the face of a cat or a dog visible in `photo`?"},
+            "face": {"type": "box", "instructions": "The face of the cat or dog in `photo`."}
+          }
+        }
+    - key: photo
+      type: file
+      src: data/dogs/dogs_03.jpg
+      contentType: image/jpeg
+scripts:
+  - type: afterResponse
+    language: text/javascript
+    code: |-
+      pm.test('200 OK', () => pm.response.to.have.status(200));
+      pm.test('box edges are ordered', () => {
+        const box = pm.response.json().answers.face.box;
+        pm.expect(box.left).to.be.below(box.right);
+        pm.expect(box.top).to.be.below(box.bottom);
+      });

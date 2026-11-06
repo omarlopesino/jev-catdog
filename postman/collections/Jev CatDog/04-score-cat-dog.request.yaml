@@ -1,0 +1,44 @@
+$kind: http-request
+name: 4. score with an image (score-cat-dog)
+description: "Scale from cat (0) to dog (1); a counterexample: choice fits unordered categories better."
+order: 4000
+url: '{{base_url}}/systemone'
+method: POST
+examples: ./.resources/04-score-cat-dog.resources/examples/
+headers:
+  - key: TypeSafe-Danger-Zone-Images
+    value: 'true'
+    description: Required to send images; without it TypeSafe responds 400.
+body:
+  type: formdata
+  content:
+    - key: request
+      type: text
+      contentType: application/json
+      value: |-
+        {
+          "model": "{{model}}",
+          "state": {"photo": "photo"},
+          "assets": {"photo": {"type": "image", "part": "photo"}},
+          "questions": {
+            "cat_to_dog": {
+              "type": "score",
+              "instructions": "Where does the animal in `photo` fall between a cat and a dog?",
+              "criteria": ["The animal is clearly a cat", "The animal is clearly a dog"]
+            }
+          }
+        }
+    - key: photo
+      type: file
+      src: data/cats/cats_01.jpg
+      contentType: image/jpeg
+scripts:
+  - type: afterResponse
+    language: text/javascript
+    code: |-
+      pm.test('200 OK', () => pm.response.to.have.status(200));
+      pm.test('score is between 0 and 1 with two levels', () => {
+        const answer = pm.response.json().answers.cat_to_dog;
+        pm.expect(answer.score).to.be.within(0, 1);
+        pm.expect(answer.probabilities).to.have.all.keys('0', '1');
+      });

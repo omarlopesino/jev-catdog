@@ -1,0 +1,48 @@
+$kind: http-request
+name: 3. choice with an image (choice-cat-dog)
+description: Chooses whether the photo shows a cat, a dog or something else.
+order: 3000
+url: '{{base_url}}/systemone'
+method: POST
+examples: ./.resources/03-choice-cat-dog.resources/examples/
+headers:
+  - key: TypeSafe-Danger-Zone-Images
+    value: 'true'
+    description: Required to send images; without it TypeSafe responds 400.
+body:
+  type: formdata
+  content:
+    - key: request
+      type: text
+      contentType: application/json
+      value: |-
+        {
+          "model": "{{model}}",
+          "state": {"photo": "photo"},
+          "assets": {"photo": {"type": "image", "part": "photo"}},
+          "questions": {
+            "animal": {
+              "type": "choice",
+              "instructions": "What does `photo` mainly show?",
+              "criteria": {
+                "cat": "A cat",
+                "dog": "A dog",
+                "other": "Anything that is neither a cat nor a dog"
+              }
+            }
+          }
+        }
+    - key: photo
+      type: file
+      src: data/dogs/dogs_02.jpg
+      contentType: image/jpeg
+scripts:
+  - type: afterResponse
+    language: text/javascript
+    code: |-
+      pm.test('200 OK', () => pm.response.to.have.status(200));
+      pm.test('choice is one of cat, dog and other', () => {
+        const answer = pm.response.json().answers.animal;
+        pm.expect(['cat', 'dog', 'other']).to.include(answer.choice);
+        pm.expect(answer.probabilities).to.have.all.keys('cat', 'dog', 'other');
+      });

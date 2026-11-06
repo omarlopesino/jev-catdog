@@ -1,0 +1,33 @@
+$kind: http-request
+name: 1. noul with text (cat-detect-text)
+description: Probability that a natural-language description refers to a cat.
+order: 1000
+url: '{{base_url}}/systemone'
+method: POST
+examples: ./.resources/01-cat-detect-text.resources/examples/
+headers:
+  - key: Content-Type
+    value: application/json
+body:
+  type: json
+  content: |-
+    {
+      "model": "{{model}}",
+      "state": "It looks like a tiger but smaller. When I open a can of tuna it comes running and meows.",
+      "questions": {
+        "is_cat": {
+          "type": "noul",
+          "instructions": "Does this description refer to a cat?"
+        }
+      }
+    }
+scripts:
+  - type: afterResponse
+    language: text/javascript
+    code: |-
+      pm.test('200 OK', () => pm.response.to.have.status(200));
+      pm.test('noul is between 0 and 1', () => {
+        const answer = pm.response.json().answers.is_cat;
+        pm.expect(answer.type).to.equal('noul');
+        pm.expect(answer.noul).to.be.within(0, 1);
+      });

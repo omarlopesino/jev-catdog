@@ -1,0 +1,38 @@
+$kind: http-example
+name: 200 OK (real jev-1.14.0 response)
+request:
+  method: POST
+  url: '{{base_url}}/systemone'
+response:
+  statusCode: 200
+  statusText: OK
+  headers:
+    - key: Content-Type
+      value: application/json
+  body:
+    type: json
+    content: |-
+      {
+        "model": "jev-1.14.0",
+        "answers": {
+          "has_face": {
+            "type": "noul",
+            "noul": 0.96
+          },
+          "face": {
+            "type": "box",
+            "box": {
+              "top": 0.21,
+              "bottom": 0.71,
+              "left": 0.08,
+              "right": 0.87
+            },
+            "confidence": 0.32
+          }
+        },
+        "usage": {
+          "input_tokens": 9972,
+          "output_tokens": 37
+        }
+      }
+order: 1000

@@ -1,0 +1,19 @@
+$kind: collection
+name: Jev CatDog
+description: |-
+  Jev (TypeSafe) examples with cats and dogs: noul with text and with an image, choice, score and box.
+  These are the same requests that the jev-catdog CLI commands send.
+  Images are sent as multipart: the `request` part carries the JSON and `photo` the image.
+  Run from the repository root so the paths under data/ resolve.
+auth:
+  type: bearer
+  credentials:
+    - key: token
+      value: '{{jev_api_key}}'
+variables:
+  - key: base_url
+    value: https://api.typesafe.ai/v1
+    description: Base URL of the native TypeSafe API.
+  - key: model
+    value: jev-latest
+    description: Jev model; box needs jev-1.14 or later.
