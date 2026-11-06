@@ -1,0 +1,29 @@
+[project]
+name = "jev-catdog"
+version = "0.1.0"
+description = "Jev examples (noul, score, choice, box) applied to cats and dogs."
+readme = "README.md"
+requires-python = ">=3.12"
+dependencies = [
+    "httpx>=0.28",
+    "pillow>=11",
+    "python-dotenv>=1",
+]
+
+[project.scripts]
+cat-detect-text = "jev_catdog.cli.commands:cat_detect_text"
+cat-detect-image = "jev_catdog.cli.commands:cat_detect_image"
+score-cat-dog = "jev_catdog.cli.commands:score_cat_dog"
+choice-cat-dog = "jev_catdog.cli.commands:choice_cat_dog"
+crop-cat-dog-face = "jev_catdog.cli.commands:crop_cat_dog_face"
+
+[dependency-groups]
+dev = ["pytest>=8"]
+
+[build-system]
+requires = ["uv_build>=0.9,<0.14"]
+build-backend = "uv_build"
+
+[tool.pytest.ini_options]
+testpaths = ["tests"]
+pythonpath = ["tests"]
