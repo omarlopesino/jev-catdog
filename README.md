@@ -104,6 +104,20 @@ uv run crop-cat-dog-face ./data/dogs/dogs_03.jpg
 
 Use `--out PATH` to choose where the crop is saved.
 
+## Image cards
+
+Every command also accepts `--format image`, which saves a 1200×630 PNG card summarising the result (drawn at 2× for sharp text) and prints its path:
+
+```sh
+uv run choice-cat-dog ./data/dogs/dogs_02.jpg --format image
+```
+
+```json
+{ "card": "output/dogs_02_choice-cat-dog.png" }
+```
+
+The card goes to `output/<image name>_<command>.png` (`text_cat-detect-text.png` for the text command); `--card PATH` picks another path. The noul cards colour the probability green from 75%, orange from 40% and red below. When `crop-cat-dog-face` finds no face, it still saves a card with a red X, adds its path to the error under `card` and exits with code 1. The fonts (Bricolage Grotesque, Instrument Sans, Instrument Serif and IBM Plex Mono, all under the SIL Open Font License) ship in `src/jev_catdog/infrastructure/fonts/`.
+
 ## Seeing the request sent to Jev
 
 Every command accepts:
@@ -152,7 +166,7 @@ Run it from the repository root so the image paths under `data/` resolve.
 src/jev_catdog/
   jev/             domain: questions, answers, request, JevGateway port (no I/O)
   use_cases/       one per command; each declares its QUESTIONS at the top
-  infrastructure/  TypeSafe HTTP gateway, image preparer and cropper, settings
+  infrastructure/  TypeSafe HTTP gateway, image preparer and cropper, settings, card renderer
   cli/             argparse commands, JSON presenter, composition root
 ```
 
