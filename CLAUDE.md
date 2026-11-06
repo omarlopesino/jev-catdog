@@ -18,10 +18,11 @@ The examples form a progression, each building on the previous one:
 
 Python CLI managed with uv. All five examples are implemented and verified against the real API.
 
-- Commands: `uv run cat-detect-text "<description>"`, `uv run cat-detect-image <img>`, `uv run choice-cat-dog <img>`, `uv run score-cat-dog <img>`, `uv run crop-cat-dog-face <img> [--out PATH] [--threshold 0.5]`. All accept `--verbose` (`-v`) and `--dry-run`.
+- Commands: `uv run cat-detect-text "<description>"`, `uv run cat-detect-image <img>`, `uv run choice-cat-dog <img>`, `uv run score-cat-dog <img>`, `uv run crop-cat-dog-face <img> [--out PATH] [--threshold 0.5]`. All accept `--verbose` (`-v`), `--dry-run` and `--format json|image` (`--card PATH` for where the PNG card goes).
 - Tests: `uv run pytest`, no network (gateway faked with `httpx.MockTransport` and `FakeGateway` in `tests/conftest.py`).
 - Configuration: `JEV_API_KEY` in `.env` (loaded with python-dotenv; never printed or committed). `JEV_BASE_URL` and `JEV_MODEL` are optional.
 - Postman: v3 collection in `postman/collections/Jev CatDog/` and environment `postman/environments/TypeSafe.environment.yaml`. Lint with `postman collection lint "postman/collections/Jev CatDog"`. Run it from the repository root with `postman collection run "postman/collections/Jev CatDog" -e postman/environments/TypeSafe.environment.yaml --env-var jev_api_key=... --working-dir .`.
+- Image cards: `infrastructure/card_canvas.py` holds the Pillow primitives and fixed 1200×630 geometry (drawn at 2×), `infrastructure/card_renderer.py` one layout per result type. The design lives in the Design canvas https://claude.ai/artifact/LyKmSv7FMwZcjBPZgkuYhE.
 - Layered architecture: `cli` → `use_cases` → `jev` (domain and `JevGateway` port) ← `infrastructure` (httpx, Pillow, settings). Only `cli/container.py` knows the concrete implementations.
 
 ## Conventions
