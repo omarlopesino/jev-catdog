@@ -1,8 +1,9 @@
-"""Turns results and errors into JSON: results go to stdout and errors to stderr."""
+"""Turns results and errors into JSON: results, or the saved card's path, go to stdout and errors to stderr."""
 
 import json
 import sys
 from dataclasses import asdict
+from pathlib import Path
 
 from jev_catdog.errors import AppError
 
@@ -10,6 +11,14 @@ from jev_catdog.errors import AppError
 def emit(result: object | None = None, request: dict | None = None) -> None:
     """Prints the result as JSON; when asked, adds the request sent under the request key."""
     output = asdict(result) if result is not None else {}
+    if request is not None:
+        output["request"] = request
+    print(json.dumps(output, ensure_ascii=False, indent=2))
+
+
+def emit_card(card: Path, request: dict | None = None) -> None:
+    """Prints the path of the saved card as JSON, plus the request sent when asked."""
+    output: dict = {"card": str(card)}
     if request is not None:
         output["request"] = request
     print(json.dumps(output, ensure_ascii=False, indent=2))
