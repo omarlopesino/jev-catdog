@@ -1,11 +1,11 @@
-"""Entry points of the five commands; each composes its use case and runs it."""
+"""Entry points of the five commands; each composes its use case, runs it and presents the result."""
 
 import argparse
 from collections.abc import Callable
 from pathlib import Path
 
 from jev_catdog.cli.container import Container
-from jev_catdog.cli.presenter import emit, fail
+from jev_catdog.cli.presenter import emit, emit_card, fail
 from jev_catdog.errors import AppError
 from jev_catdog.use_cases.choose_cat_dog import ChooseCatDog
 from jev_catdog.use_cases.crop_animal_face import DEFAULT_THRESHOLD, CropAnimalFace
@@ -60,6 +60,10 @@ def _parser(description: str) -> argparse.ArgumentParser:
     parser = argparse.ArgumentParser(description=description)
     parser.add_argument("-v", "--verbose", action="store_true", help="Include the request sent to Jev in the output.")
     parser.add_argument("--dry-run", action="store_true", help="Show the request without calling the API.")
+    parser.add_argument(
+        "--format", choices=["json", "image"], default="json", help="Print JSON, or save a PNG card summarising the result."
+    )
+    parser.add_argument("--card", type=Path, help="Path of the PNG card; defaults to output/<name>_<command>.png.")
     return parser
 
 
@@ -71,7 +75,7 @@ def _image_parser(description: str) -> argparse.ArgumentParser:
 
 
 def _run(parser: argparse.ArgumentParser, build: Callable, inputs: Callable) -> int:
-    """Composes the use case, runs it or shows its request, and presents the result as JSON."""
+    """Composes the use case, runs it or shows its request, and presents the result as JSON or a card."""
     args = parser.parse_args()
     container = Container(dry_run=args.dry_run)
     try:
@@ -83,7 +87,23 @@ def _run(parser: argparse.ArgumentParser, build: Callable, inputs: Callable) -> 
         if args.dry_run:
             emit(request=request)
             return 0
-        emit(use_case.execute(*values), request)
+        result = use_case.execute(*values)
+        if args.format == "image":
+            emit_card(container.cards.render(result, _card_path(parser, args)), request)
+        else:
+            emit(result, request)
         return 0
     except AppError as error:
+        if args.format == "image" and not args.dry_run:
+            card = container.cards.render_failure(error, _card_path(parser, args))
+            if card is not None:
+                error.details["card"] = str(card)
         return fail(error)
+
+
+def _card_path(parser: argparse.ArgumentParser, args: argparse.Namespace) -> Path:
+    """The --card path, else output/<image name or "text">_<command>.png."""
+    if args.card:
+        return args.card
+    stem = args.image.stem if hasattr(args, "image") else "text"
+    return OUTPUT_DIR / f"{stem}_{parser.prog}.png"
