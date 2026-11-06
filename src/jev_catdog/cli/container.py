@@ -2,6 +2,7 @@
 
 from functools import cached_property
 
+from jev_catdog.infrastructure.card_renderer import CardRenderer
 from jev_catdog.infrastructure.image_cropper import ImageCropper
 from jev_catdog.infrastructure.image_preparer import ImagePreparer
 from jev_catdog.infrastructure.settings import Settings
@@ -9,7 +10,7 @@ from jev_catdog.infrastructure.typesafe_gateway import TypeSafeGateway
 
 
 class Container:
-    """Builds the TypeSafe gateway, the image preparer and the image cropper on demand."""
+    """Builds the TypeSafe gateway, the image preparer, the cropper and the card renderer on demand."""
 
     def __init__(self, dry_run: bool = False):
         self._dry_run = dry_run
@@ -33,3 +34,8 @@ class Container:
     def cropper(self) -> ImageCropper:
         """Cropper that saves the box region taken from the original, full-resolution image."""
         return ImageCropper()
+
+    @cached_property
+    def cards(self) -> CardRenderer:
+        """Renderer of the PNG summary cards used by --format image."""
+        return CardRenderer()
